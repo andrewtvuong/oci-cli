@@ -223,29 +223,29 @@ def get_install_dir():
         prompt_message = 'In what directory would you like to place the install?'
         install_dir = prompt_input_with_default(prompt_message, DEFAULT_INSTALL_DIR)
         install_dir = os.path.realpath(os.path.expanduser(install_dir))
+        # removed previous if/else conditional checking for whitespaces in install path, which was previously unsupported
         if ' ' in install_dir:
-            print_status("The install directory '{}' cannot contain spaces.".format(install_dir))
-            install_dir = None
-        else:
-            create_dir(install_dir)
-            if os.listdir(install_dir):
-                print_status("Install directory '{}' is not empty and may contain a previous installation.".format(install_dir))
-                if ACCEPT_ALL_DEFAULTS:
-                    # default behavior is to NOT delete an existing directory and re-prompt for install_dir, but we can't re-prompt if ACCEPT_ALL_DEFAULTS is set
-                    sys.exit("Refusing to remove existing directory {}. Please remove directory manually and re-run installation script.".format(install_dir))
+            # replaced with a new if conditional checking for whitespaces and will replace ' ' with \xc2\xa0
+            install_dir = install_dir.replace(' ', '\xc2\xa0')
+        create_dir(install_dir)
+        if os.listdir(install_dir):
+            print_status("Install directory '{}' is not empty and may contain a previous installation.".format(install_dir))
+            if ACCEPT_ALL_DEFAULTS:
+                # default behavior is to NOT delete an existing directory and re-prompt for install_dir, but we can't re-prompt if ACCEPT_ALL_DEFAULTS is set
+                sys.exit("Refusing to remove existing directory {}. Please remove directory manually and re-run installation script.".format(install_dir))
 
-                ans_yes = prompt_y_n('Remove this directory?', 'n')
-                if ans_yes:
-                    try:
-                        shutil.rmtree(install_dir)
-                    except Exception:
-                        sys.exit("Failed to remove directory: {}. Please remove directory manually and re-run installation script.".format(install_dir))
+            ans_yes = prompt_y_n('Remove this directory?', 'n')
+            if ans_yes:
+                try:
+                    shutil.rmtree(install_dir)
+                except Exception:
+                    sys.exit("Failed to remove directory: {}. Please remove directory manually and re-run installation script.".format(install_dir))
 
-                    print_status("Deleted '{}'.".format(install_dir))
-                    create_dir(install_dir)
-                else:
-                    # User opted to not delete the directory so ask for install directory again
-                    install_dir = None
+                print_status("Deleted '{}'.".format(install_dir))
+                create_dir(install_dir)
+            else:
+                # User opted to not delete the directory so ask for install directory again
+                install_dir = None
     print_status("We will install at '{}'.".format(install_dir))
     return install_dir
 
@@ -256,10 +256,10 @@ def get_exec_dir(install_dir):
         prompt_message = "In what directory would you like to place the '{}' executable?".format(OCI_EXECUTABLE_NAME)
         exec_dir = prompt_input_with_default(prompt_message, DEFAULT_EXEC_DIR)
         exec_dir = os.path.realpath(os.path.expanduser(exec_dir))
+        # removed previous if conditional checking for whitespaces in exec path, which was previously unsupported
         if ' ' in exec_dir:
-            print_status("The executable directory '{}' cannot contain spaces.".format(exec_dir))
-            exec_dir = None
-
+            # replaced with a new if conditional checking for whitespaces and will replace ' ' with \xc2\xa0
+            exec_dir = exec_dir.replace(' ', '\xc2\xa0')
         install_dir_bin_folder = 'Scripts' if is_windows() else 'bin'
         install_bin_dir = os.path.join(install_dir, install_dir_bin_folder)
         if exec_dir == install_bin_dir:
@@ -278,8 +278,8 @@ def get_script_dir(install_dir):
         script_dir = prompt_input_with_default(prompt_message, DEFAULT_SCRIPT_DIR)
         script_dir = os.path.realpath(os.path.expanduser(script_dir))
         if ' ' in script_dir:
-            print_status("The script directory '{}' cannot contain spaces.".format(script_dir))
-            script_dir = None
+            # replaced with a new if conditional checking for whitespaces and will replace ' ' with \xc2\xa0
+            script_dir = script_dir.replace(' ', '\xc2\xa0')
 
         install_dir_bin_folder = 'Scripts' if is_windows() else 'bin'
         install_bin_dir = os.path.join(install_dir, install_dir_bin_folder)
